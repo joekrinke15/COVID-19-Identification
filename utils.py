@@ -19,6 +19,7 @@ def import_tb(grayscale, dim1, dim2, path=r'C:/Users/Joe Krinke/Desktop/pulmonar
         resized = resize(image, (dim1,dim2)) #Resize images to standard size
         lung_images.append(resized)
         labels.append(0) #Add label indicating they are negative for disease. 
+        print(i)
     #Positive images go from 327 - 662 inclusive
     for i in range(327,662):
         number = str(i+1)
@@ -28,11 +29,12 @@ def import_tb(grayscale, dim1, dim2, path=r'C:/Users/Joe Krinke/Desktop/pulmonar
         resized = resize(image, (dim1,dim2))
         lung_images.append(resized)
         labels.append(2)
+        print(i)
     #Compile images + labels
     lung_images = np.stack(lung_images)
-    return(lung_images)
+    return(lung_images, labels)
 
-#The data from the Kaggle source is separated into 3 different sets: normal, covid-19, and viral pneumonia. They are imported separately and then concatenated. These functions assume all the data is contained within the same folder [the way they are when you download]. 
+#The data from the Kaggle source is separated into 3 different sets: normal, covid-19, and viral pneumonia. These functions assume all the data is contained within the same folder [the way they are when you download]. 
 def import_covid(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Downloads\covid19-radiography-database\COVID-19 Radiography Database\COVID-19'):
     os.chdir(path)
     covid_images = []
@@ -48,7 +50,7 @@ def import_covid(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Downloads\co
         covid_images.append(resized)
         covid_labels.append(0)
     covid_images = np.stack(covid_images)
-    return(covid_images)
+    return(covid_images, covid_labels)
 def import_normal(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Downloads\covid19-radiography-database\COVID-19 Radiography Database\NORMAL'):
     os.chdir(path)
     normal_images = []
@@ -61,11 +63,11 @@ def import_normal(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Downloads\c
         normal_images.append(resized)
         normal_labels.append(3)
     normal_images = np.stack(normal_images)
-    return(normal_images)       
+    return(normal_images, normal_labels)       
 def import_pneumonia(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Downloads\covid19-radiography-database\COVID-19 Radiography Database\Viral Pneumonia'):
     os.chdir(path)
     pneumonia_images = []
-    covid_labels = []
+    pneumonia_labels = []
     for i in range(1345):
         number = str(i+1)
         name = str(r'Viral Pneumonia (') + number + r').png'
@@ -73,11 +75,6 @@ def import_pneumonia(dim1, dim2, grayscale, path =r'C:\Users\Joe Krinke\Download
         resized = resize(image, (dim1, dim2))
         pneumonia_images.append(resized)
     pneumonia_images = np.stack(pneumonia_images)
-    return(pneumonia_images)
+    return(pneumonia_images, pneumonia_labels)
                 
         
-def construct_dataset(dim1, dim2, grayscale):
-
-    full_data = np.concatenate((import_pneumonia(dim1, dim2, grayscale), import_covid(dim1, dim2, grayscale), 
-                                import_tb(dim1, dim2, grayscale),import_normal(dim1, dim2, grayscale)))
-    return(full_data)
