@@ -36,7 +36,7 @@ def import_tb(grayscale, dim1=300, dim2=300, path=r'C:/Users/Joe Krinke/Desktop/
         image = io.imread(name, as_gray=grayscale)
         resized = resize(image, (dim1, dim2))
         lung_images.append(resized)
-        labels.append(2)
+        labels.append(1)
     # Compile images + labels
     lung_images = np.stack(lung_images)
     return(lung_images, labels)
@@ -89,6 +89,7 @@ def import_pneumonia(grayscale, dim1=300, dim2=300, path=r'C:\Users\Joe Krinke\D
         image = io.imread(name, as_gray=grayscale)
         resized = resize(image, (dim1, dim2))
         pneumonia_images.append(resized)
+        pneumonia_labels.append(2)
     pneumonia_images = np.stack(pneumonia_images)
     return(pneumonia_images, pneumonia_labels)
 
