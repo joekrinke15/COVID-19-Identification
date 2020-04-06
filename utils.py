@@ -9,6 +9,7 @@ from skimage import io
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve
 
 
 def import_tb(grayscale, dim1=300, dim2=300, path=r'C:/Users/Joe Krinke/Desktop/pulmonary-chest-xray-abnormalities/ChinaSet_AllFiles/ChinaSet_AllFiles/CXR_png/'):
@@ -106,3 +107,5 @@ def create_dataset(tb_data, covid_data, normal_data, pneumonia_data, binary=True
 
 def label_conversion(labels):
     return(np.where(labels == 3, 1,0))
+
+    
