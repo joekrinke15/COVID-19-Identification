@@ -68,7 +68,7 @@ def import_normal(grayscale, dim1=300, dim2=300, path=r'C:\Users\Joe Krinke\Down
     os.chdir(path)
     normal_images = []
     normal_labels = []
-    for i in range(1340):
+    for i in range(1090):
         number = str(i+1)
         name = str(r'NORMAL (') + number + r').png'
         image = io.imread(name, as_gray=grayscale)
@@ -83,7 +83,7 @@ def import_pneumonia(grayscale, dim1=300, dim2=300, path=r'C:\Users\Joe Krinke\D
     os.chdir(path)
     pneumonia_images = []
     pneumonia_labels = []
-    for i in range(1345):
+    for i in range(1102):
         number = str(i+1)
         name = str(r'Viral Pneumonia (') + number + r').png'
         image = io.imread(name, as_gray=grayscale)
@@ -94,7 +94,14 @@ def import_pneumonia(grayscale, dim1=300, dim2=300, path=r'C:\Users\Joe Krinke\D
 
 #The following two functions use the tuples returned from the functions that read in the data. 
 
-def create_dataset(tb_data, covid_data, normal_data, pneumonia_data):
+def create_dataset(tb_data, covid_data, normal_data, pneumonia_data, binary=True):
     image_dataset = np.concatenate((tb_data[0], covid_data[0], normal_data[0], pneumonia_data[0]))
     label_dataset = np.concatenate((tb_data[1], covid_data[1], normal_data[1], pneumonia_data[1]))
+    if binary:
+        label_dataset = label_conversion(label_dataset)
     return(image_dataset, label_dataset)
+
+# This function turns the coronavirus labels to 1 and all other labels to 0 for binary classification. 
+
+def label_conversion(labels):
+    return(np.where(labels == 3, 1,0))
