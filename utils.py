@@ -27,7 +27,6 @@ def import_tb(grayscale, dim1=300, dim2=300, path=r'C:/Users/Joe Krinke/Desktop/
         resized = resize(image, (dim1, dim2))  # Resize images to standard size
         lung_images.append(resized)
         labels.append(0)  # Add label indicating they are negative for disease.
-        print(i)
     # Positive images go from 327 - 662 inclusive
     for i in range(327, 662):
         number = str(i+1)
@@ -38,7 +37,6 @@ def import_tb(grayscale, dim1=300, dim2=300, path=r'C:/Users/Joe Krinke/Desktop/
         resized = resize(image, (dim1, dim2))
         lung_images.append(resized)
         labels.append(2)
-        print(i)
     # Compile images + labels
     lung_images = np.stack(lung_images)
     return(lung_images, labels)
@@ -93,3 +91,10 @@ def import_pneumonia(grayscale, dim1=300, dim2=300, path=r'C:\Users\Joe Krinke\D
         pneumonia_images.append(resized)
     pneumonia_images = np.stack(pneumonia_images)
     return(pneumonia_images, pneumonia_labels)
+
+#The following two functions use the tuples returned from the functions that read in the data. 
+
+def create_dataset(tb_data, covid_data, normal_data, pneumonia_data):
+    image_dataset = np.concatenate((tb_data[0], covid_data[0], normal_data[0], pneumonia_data[0]))
+    label_dataset = np.concatenate((tb_data[1], covid_data[1], normal_data[1], pneumonia_data[1]))
+    return(image_dataset, label_dataset)
