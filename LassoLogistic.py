@@ -1,6 +1,6 @@
 from utils import *
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_curve, auc, roc_auc_score
+from sklearn.metrics import roc_curve, auc, roc_auc_score, confusion_matrix
 
 tb_data = import_tb(True)
 covid_data = import_covid(True)
@@ -34,4 +34,8 @@ predictions = clf.predict_proba(image_data)
     plt.show()
     
 #Calculate AUC
-print("The area under the curve for this model is:{}".format(auc(fpr,tpr))
+print("The area under the curve for this model is:{}".format(auc(fpr,tpr)))
+      
+#Confusion Matrix
+predictions = clf.predict(image_data)
+confusion_matrix(labels, predictions)
