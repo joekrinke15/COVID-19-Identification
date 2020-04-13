@@ -1,6 +1,10 @@
 import numpy as np
 
 from glob import glob
+
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 from keras.applications.inception_v3 import InceptionV3
 from keras import layers as nn
 from keras.models import Model
@@ -10,11 +14,14 @@ from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 
 
-# set up global variables
-
 # data paths
 DATA_DIR = './Lung Images'
+DATA_SRCS = ['China-Tuberculosis', 'Covid-19', 'Normal']
 DATA_PATHS = glob(f'{DATA_DIR}/*/*.jpg')
+
+with open(f'{DATA_DIR}/discard_list') as f:
+    discard_set = set([l.strip() for l in f.readlines()])
+
 
 # training variables
 INPUT_SHAPE = (224, 224, 3)
