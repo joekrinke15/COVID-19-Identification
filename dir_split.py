@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 DATA_DIR = "./data"
 IMG_PATHS = glob(f'{DATA_DIR}/*/*.png')
-split_regex = re.compile('(/|\\)')
+split_regex = re.compile(r'[\\/]')
 labels = []
 for impath in tqdm(IMG_PATHS):
     *_, src, fname = re.split(split_regex, impath)
