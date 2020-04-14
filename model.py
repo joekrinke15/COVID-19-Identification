@@ -8,7 +8,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
 from keras.applications.inception_v3 import InceptionV3
 from keras import layers as nn
-from keras.models import Model
+from keras.models import Model, load_model
 from keras import optimizers as optim
 
 import matplotlib.pyplot as plt
@@ -18,12 +18,13 @@ from glob import glob
 from skimage.io import imread
 from skimage.transform import resize
 
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.metrics import classification_report
+from sklearn.utils import class_weight
 
 
 # training variables
 INPUT_SHAPE = (299, 299, 3)
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 EPOCHS = 50
 LEARNING_RATE = 1e-3
 LR_DECAY = LEARNING_RATE/EPOCHS
@@ -61,16 +62,21 @@ FLOW_PARAMS = {'target_size':INPUT_SHAPE[:2],
         'class_mode':'categorical'}
 
 train_flow = train_gen.flow_from_directory('data/train', **FLOW_PARAMS)
-val_flow = val_gen.flow_from_directory('data/val', **FLOW_PARAMS)
-test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS)
+val_flow = val_gen.flow_from_directory('data/val', **FLOW_PARAMS, shuffle=False)
+test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS, shuffle=False)
+
+class_weights = class_weight.compute_class_weight('balanced',
+                                    np.unique(train_flow.classes),
+                                    train_flow.classes)
 
 # callback functions
+model_name = 'inception_64'
 es_c = EarlyStopping(monitor='val_loss', patience=3, mode='min')
-mc_c = ModelCheckpoint(f'serialized/inception_64.h5',
+mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
                        save_best_only=True,
                        mode='min', verbose=1)
-tb_c = TensorBoard(log_dir='./serialized/inception_64_logs')
+tb_c = TensorBoard(log_dir=f'./serialized/logs/{model_name}')
 
 
 history = model.fit_generator(train_flow,
@@ -80,3 +86,11 @@ history = model.fit_generator(train_flow,
                             verbose=1, 
                             validation_data=val_flow,
                             validation_steps=len(val_flow))
+
+model = load_model(f'serialized/{model_name}.h5')
+predictions = model.predict_generator(val_flow, len(val_flow), verbose=1)
+
+y_true = val_flow.classes
+print(classification_report(y_true, np.argmax(predictions, 1)))
+
+
