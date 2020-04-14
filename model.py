@@ -18,14 +18,14 @@ from glob import glob
 from skimage.io import imread
 from skimage.transform import resize
 
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.utils import class_weight
 
 
 # training variables
 INPUT_SHAPE = (224, 224, 3)
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 50
 LEARNING_RATE = 1e-3
 LR_DECAY = LEARNING_RATE/EPOCHS
 
@@ -65,7 +65,11 @@ test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS, shuffle=Fals
 
 
 # callback functions
-model_name = 'vgg19'
+class_weights = class_weight.compute_class_weight('balanced', 
+                                                np.unique(train_flow.classes),
+                                                train_flow.classes)
+class_weights = class_weights/np.max(class_weights)
+model_name = 'vgg19_weighted'
 es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
@@ -78,14 +82,15 @@ history = model.fit_generator(train_flow,
                             steps_per_epoch=len(train_flow),
                             epochs=EPOCHS,
                             callbacks=[es_c, mc_c, tb_c],
-                            verbose=1, 
+                            verbose=1,
+                            class_weight=class_weights,
                             validation_data=val_flow,
                             validation_steps=len(val_flow))
 
 model = load_model(f'serialized/{model_name}.h5')
-predictions = model.predict_generator(val_flow, len(val_flow), verbose=1)
+predictions = model.predict_generator(test_flow, len(test_flow), verbose=1)
 
-y_true = val_flow.classes
+y_true = test_flow.classes
 print(classification_report(y_true, np.argmax(predictions, 1)))
-
+print(confusion_matrix(y_true, np.argmax(predictions, 1), ))
 
