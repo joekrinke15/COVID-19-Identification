@@ -24,8 +24,8 @@ from sklearn.utils import class_weight
 
 # training variables
 INPUT_SHAPE = (299, 299, 3)
-BATCH_SIZE = 64
-EPOCHS = 50
+BATCH_SIZE = 32
+EPOCHS = 10
 LEARNING_RATE = 1e-3
 LR_DECAY = LEARNING_RATE/EPOCHS
 
@@ -45,8 +45,8 @@ output = nn.Dense(3, activation="softmax")(x)
 
 model = Model(inputs=base_model.input, outputs=output)
 model.compile(loss='categorical_crossentropy',
-              optimizer=optim.Adamax(lr=LEARNING_RATE), 
-              metrics=['accuracy', 'mse'])
+              optimizer=optim.Adam(lr=LEARNING_RATE, decay=LR_DECAY), 
+              metrics=['accuracy'])
 
 # setup data generators
 train_gen = ImageDataGenerator(rescale=1./255,
@@ -65,13 +65,10 @@ train_flow = train_gen.flow_from_directory('data/train', **FLOW_PARAMS)
 val_flow = val_gen.flow_from_directory('data/val', **FLOW_PARAMS, shuffle=False)
 test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS, shuffle=False)
 
-class_weights = class_weight.compute_class_weight('balanced',
-                                    np.unique(train_flow.classes),
-                                    train_flow.classes)
 
 # callback functions
 model_name = 'inception_64'
-es_c = EarlyStopping(monitor='val_loss', patience=3, mode='min')
+es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
                        save_best_only=True,
