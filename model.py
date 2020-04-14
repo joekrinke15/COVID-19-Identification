@@ -37,9 +37,8 @@ for layer in base_model.layers:
 
 # add trainable layers
 x = base_model.output
-x = nn.AveragePooling2D(pool_size=(4, 4))(x)
-x = nn.Flatten(name="flatten")(x)
-x = nn.Dense(64, activation="relu")(x)
+x = nn.GlobalAveragePooling2D()(x)
+x = nn.Dense(128, activation="relu")(x)
 x = nn.Dropout(.5)(x)
 output = nn.Dense(3, activation="softmax")(x)
 
@@ -59,9 +58,9 @@ FLOW_PARAMS = {'target_size':INPUT_SHAPE[:2],
         'batch_size':BATCH_SIZE,
         'class_mode':'categorical'}
 
-train_flow = train_gen.flow_from_directory('data/train', **FLOW_PARAMS)
-val_flow = val_gen.flow_from_directory('data/val', **FLOW_PARAMS, shuffle=False)
-test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS, shuffle=False)
+train_flow = train_gen.flow_from_directory('data/single_src/train', **FLOW_PARAMS)
+val_flow = val_gen.flow_from_directory('data/single_src/val', **FLOW_PARAMS, shuffle=False)
+test_flow = val_gen.flow_from_directory('data/single_src/test', **FLOW_PARAMS, shuffle=False)
 
 
 # callback functions
@@ -69,7 +68,7 @@ class_weights = class_weight.compute_class_weight('balanced',
                                                 np.unique(train_flow.classes),
                                                 train_flow.classes)
 class_weights = class_weights/np.max(class_weights)
-model_name = 'vgg19_weighted'
+model_name = 'vgg19_single_src'
 es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
@@ -83,11 +82,11 @@ history = model.fit_generator(train_flow,
                             epochs=EPOCHS,
                             callbacks=[es_c, mc_c, tb_c],
                             verbose=1,
-                            class_weight=class_weights,
                             validation_data=val_flow,
                             validation_steps=len(val_flow))
 
 model = load_model(f'serialized/{model_name}.h5')
+test_flow.reset()
 predictions = model.predict_generator(test_flow, len(test_flow), verbose=1)
 
 y_true = test_flow.classes
