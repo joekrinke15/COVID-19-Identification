@@ -6,7 +6,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
-from keras.applications.inception_v3 import InceptionV3
+from keras.applications.vgg19 import VGG19
 from keras import layers as nn
 from keras.models import Model, load_model
 from keras import optimizers as optim
@@ -23,14 +23,14 @@ from sklearn.utils import class_weight
 
 
 # training variables
-INPUT_SHAPE = (299, 299, 3)
+INPUT_SHAPE = (224, 224, 3)
 BATCH_SIZE = 32
 EPOCHS = 10
 LEARNING_RATE = 1e-3
 LR_DECAY = LEARNING_RATE/EPOCHS
 
 # load base model and freeze learning
-base_model = InceptionV3(weights="imagenet", include_top=False,
+base_model = VGG19(weights="imagenet", include_top=False,
                          input_tensor=nn.Input(shape=INPUT_SHAPE))
 for layer in base_model.layers:
     layer.trainable = False
@@ -50,9 +50,7 @@ model.compile(loss='categorical_crossentropy',
 
 # setup data generators
 train_gen = ImageDataGenerator(rescale=1./255,
-                                rotation_range=20,
-                                width_shift_range=0.2,
-                                height_shift_range=0.2,
+                                rotation_range=15,
                                 horizontal_flip=True)
 
 val_gen = ImageDataGenerator(rescale=1./255)
@@ -67,7 +65,7 @@ test_flow = val_gen.flow_from_directory('data/test', **FLOW_PARAMS, shuffle=Fals
 
 
 # callback functions
-model_name = 'inception_64'
+model_name = 'vgg19'
 es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
