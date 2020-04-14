@@ -28,7 +28,7 @@ BATCH_SIZE = 32
 EPOCHS = 50
 LEARNING_RATE = 1e-3
 LR_DECAY = LEARNING_RATE/EPOCHS
-DATA_SRC = 'data/single_src_no_dup' # source folder for the data
+DATA_SRC = 'data/gradual_dec' # source folder for the data
 # load base model and freeze learning
 base_model = VGG19(weights="imagenet", include_top=False,
                          input_tensor=nn.Input(shape=INPUT_SHAPE))
@@ -64,7 +64,7 @@ test_flow = val_gen.flow_from_directory(f'{DATA_SRC}/test', **FLOW_PARAMS, shuff
 
 
 # callback functions
-model_name = 'vgg19_single_src_no_dup'
+model_name = 'vgg19_single_gradual_dec'
 es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
@@ -72,22 +72,27 @@ mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        mode='min', verbose=1)
 tb_c = TensorBoard(log_dir=f'./serialized/logs/{model_name}')
 
-
+# NOTE: dirty hack, manually editing the train files to remove data after
+# every 3rd epoch
+# TODO: automate!
+epoch = 0
+train_flow = train_gen.flow_from_directory(f'{DATA_SRC}/train', **FLOW_PARAMS)
 history = model.fit_generator(train_flow,
                             steps_per_epoch=len(train_flow),
-                            epochs=EPOCHS,
+                            epochs=epoch+3,
+                            initial_epoch=epoch,
                             callbacks=[es_c, mc_c, tb_c],
                             verbose=1,
                             validation_data=val_flow,
                             validation_steps=len(val_flow))
-
+epoch+=3
 # evaluate model
 model = load_model(f'serialized/{model_name}.h5')
-test_flow.reset()
-predictions = model.predict_generator(test_flow, len(test_flow), verbose=1)
+val_flow.reset()
+predictions = model.predict_generator(val_flow, len(val_flow), verbose=1)
 
-y_true = test_flow.classes
+y_true = val_flow.classes
 print(classification_report(y_true, 
                             np.argmax(predictions, 1), 
-                            target_names=test_flow.class_indices))
+                            target_names=val_flow.class_indices))
 print(confusion_matrix(y_true, np.argmax(predictions, 1)))
