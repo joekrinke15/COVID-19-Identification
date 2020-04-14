@@ -58,9 +58,9 @@ FLOW_PARAMS = {'target_size':INPUT_SHAPE[:2],
         'batch_size':BATCH_SIZE,
         'class_mode':'categorical'}
 
-train_flow = train_gen.flow_from_directory('data/single_src/train', **FLOW_PARAMS)
-val_flow = val_gen.flow_from_directory('data/single_src/val', **FLOW_PARAMS, shuffle=False)
-test_flow = val_gen.flow_from_directory('data/single_src/test', **FLOW_PARAMS, shuffle=False)
+train_flow = train_gen.flow_from_directory('data/single_src_no_dup/train', **FLOW_PARAMS)
+val_flow = val_gen.flow_from_directory('data/single_src_no_dup/val', **FLOW_PARAMS, shuffle=False)
+test_flow = val_gen.flow_from_directory('data/single_src_no_dup/test', **FLOW_PARAMS, shuffle=False)
 
 
 # callback functions
@@ -68,7 +68,7 @@ class_weights = class_weight.compute_class_weight('balanced',
                                                 np.unique(train_flow.classes),
                                                 train_flow.classes)
 class_weights = class_weights/np.max(class_weights)
-model_name = 'vgg19_single_src'
+model_name = 'vgg19_single_src_no_dup'
 es_c = EarlyStopping(monitor='val_loss', patience=2, mode='min')
 mc_c = ModelCheckpoint(f'serialized/{model_name}.h5',
                        monitor='val_loss',
@@ -90,6 +90,5 @@ test_flow.reset()
 predictions = model.predict_generator(test_flow, len(test_flow), verbose=1)
 
 y_true = test_flow.classes
-print(classification_report(y_true, np.argmax(predictions, 1)))
-print(confusion_matrix(y_true, np.argmax(predictions, 1), ))
-
+print(classification_report(y_true, np.argmax(predictions, 1), target_names=test_flow.class_indices))
+print(confusion_matrix(y_true, np.argmax(predictions, 1)))
