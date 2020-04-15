@@ -91,13 +91,16 @@ def move_subset(path_list, src_subdir='train', dst_subdir='moved'):
         shutil.move(f'{DATA_SRC}/{src_subdir}/{path}', f'{dst_dir}/{path}')
 
 cxr_data = [path for path in np.array(train_flow.filenames).flatten() if 'CXR' in path]
-cxr_subsets = np.array_split(cxr_data, 3)
 
 init_epoch = 0
 epochs_per_subset = 3
+cxr_subsets = np.array_split(cxr_data, epochs_per_subset)
 
+# gradually remove cxr data from the training set
 for subset in cxr_subsets:
+    # reset generator to reflect change in directory
     train_flow = train_gen.flow_from_directory(f'{DATA_SRC}/train', **FLOW_PARAMS)
+
     history = model.fit_generator(train_flow,
                                 steps_per_epoch=len(train_flow),
                                 epochs=init_epoch+epochs_per_subset,
@@ -106,7 +109,9 @@ for subset in cxr_subsets:
                                 verbose=1,
                                 validation_data=val_flow,
                                 validation_steps=len(val_flow))
+    # remove the subset files from the training set
     move_subset(subset)
+    # keep track of the current epoch
     init_epoch+=epochs_per_subset
 
 train_flow = train_gen.flow_from_directory(f'{DATA_SRC}/train', **FLOW_PARAMS)
