@@ -1,5 +1,5 @@
 """
-moves the data files into train/val/test subdirectories
+copy the data files into train/val/test subdirectories
 
 """
 import os
@@ -10,7 +10,7 @@ import shutil
 from tqdm import tqdm
 
 
-DATA_DIR = "./data"
+DATA_DIR = "./data/super_set"
 IMG_PATHS = glob(f'{DATA_DIR}/*/*.png')
 split_regex = re.compile(r'[\\/]')
 labels = []
@@ -45,7 +45,7 @@ def move_subset(path_list, subset):
         if not os.path.isdir(dst_dir):
             os.makedirs(dst_dir)
             pass
-        shutil.move(path, f'{dst_dir}/{fname}')
+        shutil.copy(path, f'{dst_dir}/{fname}')
 
 move_subset(train_paths, 'train')
 move_subset(val_paths, 'val')
