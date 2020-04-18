@@ -29,3 +29,33 @@ weighted avg       0.88      0.88      0.88       706
 COVID-19 [ 37   2   1]
 NORMAL   [  6 287  40]
 OTHER    [  8  27 298]
+
+Xception trainable lr 1e-4, decay 1e-6, weighted classes
+              precision    recall  f1-score   support
+
+    COVID-19       0.97      0.82      0.89        40
+      NORMAL       0.81      0.98      0.89       333
+       OTHER       0.96      0.79      0.86       333
+
+    accuracy                           0.88       706
+   macro avg       0.91      0.86      0.88       706
+weighted avg       0.89      0.88      0.88       706
+
+COVID-19 [ 33   4   3]
+NORMAL   [  0 325   8]
+OTHER    [  1  70 262]
+
+weighted voting model
+              precision    recall  f1-score   support
+
+    COVID-19       0.97      0.93      0.95        40
+      NORMAL       0.84      0.94      0.89       333
+       OTHER       0.94      0.83      0.88       333
+
+    accuracy                           0.89       706
+   macro avg       0.92      0.90      0.90       706
+weighted avg       0.89      0.89      0.89       706
+
+COVID-19 [ 37   3   0]
+NORMAL   [  0 314  19]
+OTHER    [  1  57 275]
