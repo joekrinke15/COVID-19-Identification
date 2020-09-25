@@ -2,13 +2,13 @@
 Identifying Coronavirus Patients Using Radiography Images.
 
 
-# Machine Learning Pipeline and Model Structure
-
+# Machine Learning Pipeline 
 
 <p align = "center">
-  <img src="https://raw.githubusercontent.com/joekrinke15/COVID-19-Identification/master/image2.png?raw=true"/>
+  <img width = '477' height ='962' src="https://raw.githubusercontent.com/joekrinke15/COVID-19-Identification/master/image2.png?raw=true"/>
 </p>
 
+# Neural Network Structures 
 <p align = "center">
   <img src="https://github.com/joekrinke15/COVID-19-Identification/blob/master/image4.png?raw=true">
 </p>
