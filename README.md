@@ -12,10 +12,14 @@ Identifying Coronavirus Patients Using Radiography Images.
 </p>
 
 # Model Results
-
+<p align="center">
+  <img src="https://github.com/joekrinke15/COVID-19-Identification/blob/master/image3.png?raw=true" />
+</p
+  
 <p align="center">
   <img src="https://github.com/joekrinke15/COVID-19-Identification/blob/master/image5.png?raw=true" />
 </p
+  
 <p align="center">
   <img src="https://github.com/joekrinke15/COVID-19-Identification/blob/master/image1.png?raw=true" />
 </p
